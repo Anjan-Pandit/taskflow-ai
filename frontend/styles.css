@@ -1,0 +1,387 @@
+
+/* =========================
+   RESET
+========================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* =========================
+   BODY
+========================= */
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+    line-height: 1.6;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.header {
+    background: #1f2937;
+    color: white;
+    text-align: center;
+    padding: 25px 15px;
+}
+
+.header h1 {
+    font-size: 32px;
+    margin-bottom: 5px;
+}
+
+.header p {
+    font-size: 16px;
+}
+
+
+/* =========================
+   MAIN CONTAINER
+========================= */
+
+.container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 30px auto;
+}
+
+
+/* =========================
+   SECTIONS
+========================= */
+
+.task-form-section,
+.task-list-section {
+    background: white;
+    padding: 25px;
+    margin-bottom: 25px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+section h2 {
+    margin-bottom: 20px;
+    color: #1f2937;
+}
+
+
+/* =========================
+   FORM
+========================= */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 7px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+
+/* =========================
+   BUTTON
+========================= */
+
+button {
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    background: #2563eb;
+    color: white;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+
+/* =========================
+   ERROR
+========================= */
+
+.error-message {
+    display: block;
+    color: #dc2626;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+
+/* =========================
+   STATISTICS
+========================= */
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: #f8fafc;
+    padding: 18px;
+    text-align: center;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.stat-card h3 {
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.stat-card p {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+
+/* =========================
+   SEARCH / SORT / FILTER
+========================= */
+
+#searchTasks,
+#sortTasks,
+#filterTasks {
+    width: 100%;
+    padding: 11px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+
+/* =========================
+   TASK LIST
+========================= */
+
+#taskList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+
+/* =========================
+   TASK CARD
+========================= */
+
+.task-item {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-left: 6px solid #9ca3af;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.task-item h3 {
+    margin-bottom: 10px;
+    color: #111827;
+}
+
+.task-item p {
+    margin-bottom: 5px;
+}
+
+
+/* =========================
+   PRIORITY COLORS
+========================= */
+
+.task-item.priority-high {
+    border-left-color: #dc2626;
+}
+
+.task-item.priority-medium {
+    border-left-color: #f59e0b;
+}
+
+.task-item.priority-low {
+    border-left-color: #16a34a;
+}
+
+
+/* =========================
+   OVERDUE
+========================= */
+
+.task-item.overdue {
+    background: #fff1f2;
+    border-left-color: #dc2626;
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+.status-overdue {
+    color: #dc2626;
+    font-weight: bold;
+}
+
+.status-completed {
+    color: #16a34a;
+    font-weight: bold;
+}
+
+.status-pending {
+    color: #f59e0b;
+    font-weight: bold;
+}
+
+
+/* =========================
+   TASK ACTIONS
+========================= */
+
+.task-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.task-actions button {
+    padding: 8px 13px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+
+    .container {
+        width: 95%;
+        margin: 20px auto;
+    }
+
+    .stats-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .header h1 {
+        font-size: 26px;
+    }
+
+}
+
+
+/* =========================
+   SMALL MOBILE
+========================= */
+
+@media (max-width: 480px) {
+
+    .task-form-section,
+    .task-list-section {
+        padding: 18px;
+    }
+
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+
+    .task-item {
+        padding: 15px;
+    }
+
+    .task-actions {
+        flex-direction: column;
+    }
+
+    .task-actions button {
+        width: 100%;
+    }
+
+}
+
+
+/* =========================
+   TASK BADGES
+========================= */
+
+.task-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 10px 0;
+}
+
+.task-badge {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+
+/* Priority Badges */
+
+.badge-high {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.badge-medium {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.badge-low {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+
+/* Status Badges */
+
+.badge-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge-completed {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-overdue {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
