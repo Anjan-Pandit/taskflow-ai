@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+import time
 
 from ..database import get_db
-from .. import crud, schemas
+from ..models import Task
+from ..schemas import TaskCreate, TaskResponse
 from ..utils.algorithms import (
     insertion_sort,
-    binary_search,
-    linear_search
+    linear_search,
+    binary_search
 )
 
 
@@ -20,35 +22,32 @@ router = APIRouter(
 # CREATE TASK
 # ==========================================
 
-@router.post(
-    "/",
-    response_model=schemas.TaskResponse,
-    status_code=status.HTTP_201_CREATED
-)
+@router.post("/", response_model=TaskResponse)
 def create_task(
-    task: schemas.TaskCreate,
+    task: TaskCreate,
     db: Session = Depends(get_db)
 ):
-    return crud.create_task(db, task)
+    new_task = Task(
+        title=task.title,
+        description=task.description,
+        completed=task.completed,
+        project_id=task.project_id,
+        priority=task.priority,
+        due_date=task.due_date
+    )
+
+    db.add(new_task)
+    db.commit()
+    db.refresh(new_task)
+
+    return new_task
 
 
 # ==========================================
 # GET ALL TASKS
-#
-# Normal:
-# /tasks/
-#
-# Priority:
-# /tasks/?sort=priority
-#
-# Due Date:
-# /tasks/?sort=due_date
 # ==========================================
 
-@router.get(
-    "/",
-    response_model=list[schemas.TaskResponse]
-)
+@router.get("/", response_model=list[TaskResponse])
 def get_tasks(
     sort: str | None = Query(
         default=None,
@@ -56,220 +55,84 @@ def get_tasks(
     ),
     db: Session = Depends(get_db)
 ):
+    tasks = db.query(Task).all()
 
-    tasks = crud.get_tasks(db)
-
-    # --------------------------------------
-    # No sorting
-    # --------------------------------------
-
-    if sort is None:
+    # No sorting requested
+    if not sort:
         return tasks
 
-    # --------------------------------------
-    # Priority sorting
-    # High -> Medium -> Low
-    # --------------------------------------
+    # Convert tasks to dictionaries
+    task_data = [
+        {
+            "id": task.id,
+            "title": task.title,
+            "description": task.description,
+            "completed": task.completed,
+            "project_id": task.project_id,
+            "priority": task.priority,
+            "due_date": task.due_date
+        }
+        for task in tasks
+    ]
+
+    # ======================================
+    # SORT BY PRIORITY
+    # ======================================
 
     if sort == "priority":
 
-        priority_rank = {
-            "high": 0,
-            "medium": 1,
-            "low": 2
+        priority_order = {
+            "High": 1,
+            "Medium": 2,
+            "Low": 3,
+            "high": 1,
+            "medium": 2,
+            "low": 3
         }
 
-        records = []
-
-        for task in tasks:
-
-            # Handle Enum priority
-            priority_value = (
-                task.priority.value
-                if hasattr(task.priority, "value")
-                else str(task.priority)
+        task_data = insertion_sort(
+            task_data,
+            key=lambda x: priority_order.get(
+                x["priority"],
+                2
             )
+        )
 
-            records.append({
-                "task": task,
-                "sort_value": priority_rank.get(
-                    priority_value.lower(),
-                    99
-                )
-            })
+    # ======================================
+    # SORT BY DUE DATE
+    # ======================================
 
-        # Use insertion sort
-        insertion_sort(records, "sort_value")
+    elif sort == "due_date":
 
-        return [
-            record["task"]
-            for record in records
-        ]
+        task_data = insertion_sort(
+            task_data,
+            key=lambda x: str(x["due_date"] or "")
+        )
 
-    # --------------------------------------
-    # Due date sorting
-    # Earliest first
-    # --------------------------------------
+    else:
 
-    if sort == "due_date":
-
-        records = []
-
-        for task in tasks:
-
-            if task.due_date:
-                due_value = str(task.due_date)
-            else:
-                # No due date -> last
-                due_value = "9999-12-31"
-
-            records.append({
-                "task": task,
-                "sort_value": due_value
-            })
-
-        # Use insertion sort
-        insertion_sort(records, "sort_value")
-
-        return [
-            record["task"]
-            for record in records
-        ]
-
-    # --------------------------------------
-    # Invalid sort option
-    # --------------------------------------
-
-    raise HTTPException(
-        status_code=400,
-        detail="Invalid sort option. Use priority or due_date."
-    )
-
-
-# ==========================================
-# SEARCH TASK
-#
-# Linear:
-# /tasks/search?title=Learn%20FastAPI&algo=linear
-#
-# Binary:
-# /tasks/search?title=Learn%20FastAPI&algo=binary
-# ==========================================
-
-@router.get(
-    "/search",
-    response_model=schemas.TaskResponse
-)
-def search_task(
-    title: str,
-    algo: str = Query(
-        default="linear",
-        description="Search algorithm: linear or binary"
-    ),
-    db: Session = Depends(get_db)
-):
-
-    tasks = crud.get_tasks(db)
-
-    if not tasks:
         raise HTTPException(
-            status_code=404,
-            detail="Task not found"
+            status_code=400,
+            detail="Invalid sort option. Use priority or due_date."
         )
 
-    target = title.strip().lower()
-
-    # ======================================
-    # LINEAR SEARCH
-    # ======================================
-
-    if algo == "linear":
-
-        records = []
-
-        for task in tasks:
-
-            records.append({
-                "task": task,
-                "title": str(task.title).lower()
-            })
-
-        index = linear_search(
-            records,
-            target,
-            "title"
-        )
-
-        if index == -1:
-            raise HTTPException(
-                status_code=404,
-                detail="Task not found"
-            )
-
-        return records[index]["task"]
-
-    # ======================================
-    # BINARY SEARCH
-    # ======================================
-
-    if algo == "binary":
-
-        records = []
-
-        for task in tasks:
-
-            records.append({
-                "task": task,
-                "title": str(task.title).lower()
-            })
-
-        # Binary search needs sorted data.
-        # Sort titles first using insertion sort.
-        insertion_sort(records, "title")
-
-        index = binary_search(
-            records,
-            target,
-            "title"
-        )
-
-        if index == -1:
-            raise HTTPException(
-                status_code=404,
-                detail="Task not found"
-            )
-
-        return records[index]["task"]
-
-    # ======================================
-    # INVALID SEARCH ALGORITHM
-    # ======================================
-
-    raise HTTPException(
-        status_code=400,
-        detail="Invalid algorithm. Use linear or binary."
-    )
+    return task_data
 
 
 # ==========================================
 # GET SINGLE TASK
 # ==========================================
 
-@router.get(
-    "/{task_id}",
-    response_model=schemas.TaskResponse
-)
+@router.get("/{task_id}", response_model=TaskResponse)
 def get_task(
     task_id: int,
     db: Session = Depends(get_db)
 ):
+    task = db.query(Task).filter(
+        Task.id == task_id
+    ).first()
 
-    task = crud.get_task(
-        db,
-        task_id
-    )
-
-    if task is None:
+    if not task:
         raise HTTPException(
             status_code=404,
             detail="Task not found"
@@ -282,54 +145,161 @@ def get_task(
 # UPDATE TASK
 # ==========================================
 
-@router.put(
-    "/{task_id}",
-    response_model=schemas.TaskResponse
-)
+@router.put("/{task_id}", response_model=TaskResponse)
 def update_task(
     task_id: int,
-    task: schemas.TaskCreate,
+    task_data: TaskCreate,
     db: Session = Depends(get_db)
 ):
+    task = db.query(Task).filter(
+        Task.id == task_id
+    ).first()
 
-    updated_task = crud.update_task(
-        db,
-        task_id,
-        task
-    )
-
-    if updated_task is None:
+    if not task:
         raise HTTPException(
             status_code=404,
             detail="Task not found"
         )
 
-    return updated_task
+    task.title = task_data.title
+    task.description = task_data.description
+    task.completed = task_data.completed
+    task.project_id = task_data.project_id
+    task.priority = task_data.priority
+    task.due_date = task_data.due_date
+
+    db.commit()
+    db.refresh(task)
+
+    return task
 
 
 # ==========================================
 # DELETE TASK
 # ==========================================
 
-@router.delete(
-    "/{task_id}"
-)
+@router.delete("/{task_id}")
 def delete_task(
     task_id: int,
     db: Session = Depends(get_db)
 ):
+    task = db.query(Task).filter(
+        Task.id == task_id
+    ).first()
 
-    deleted_task = crud.delete_task(
-        db,
-        task_id
-    )
-
-    if deleted_task is None:
+    if not task:
         raise HTTPException(
             status_code=404,
             detail="Task not found"
         )
 
+    db.delete(task)
+    db.commit()
+
     return {
-        "message": "Task deleted successfully"
+        "message": "Task deleted successfully",
+        "task_id": task_id
+    }
+
+
+# ==========================================
+# LINEAR SEARCH
+# ==========================================
+
+@router.get("/search/linear")
+def search_linear(
+    title: str,
+    db: Session = Depends(get_db)
+):
+    tasks = db.query(Task).all()
+
+    index = linear_search(
+        tasks,
+        title
+    )
+
+    if index == -1:
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
+
+    return tasks[index]
+
+
+# ==========================================
+# BINARY SEARCH
+# ==========================================
+
+@router.get("/search/binary")
+def search_binary(
+    title: str,
+    db: Session = Depends(get_db)
+):
+    tasks = db.query(Task).all()
+
+    if not tasks:
+        raise HTTPException(
+            status_code=404,
+            detail="No tasks found"
+        )
+
+    # Binary search ke liye title ke according sort
+    tasks = sorted(
+        tasks,
+        key=lambda task: task.title.lower()
+    )
+
+    index = binary_search(
+        tasks,
+        title
+    )
+
+    if index == -1:
+        raise HTTPException(
+            status_code=404,
+            detail="Task not found"
+        )
+
+    return tasks[index]
+
+
+# ==========================================
+# ALGORITHM BENCHMARK
+# ==========================================
+
+@router.get("/benchmark")
+def benchmark_tasks(
+    db: Session = Depends(get_db)
+):
+    tasks = db.query(Task).all()
+
+    task_data = [
+        {
+            "id": task.id,
+            "title": task.title,
+            "description": task.description,
+            "completed": task.completed,
+            "project_id": task.project_id,
+            "priority": task.priority,
+            "due_date": task.due_date
+        }
+        for task in tasks
+    ]
+
+    start_time = time.perf_counter()
+
+    insertion_sort(
+        task_data,
+        key=lambda x: x["priority"]
+    )
+
+    end_time = time.perf_counter()
+
+    execution_time = end_time - start_time
+
+    return {
+        "algorithm": "Insertion Sort",
+        "records_count": len(task_data),
+        "execution_time_seconds": execution_time
     }
