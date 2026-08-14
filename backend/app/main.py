@@ -25,19 +25,12 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5500",
-        "http://127.0.0.1:5500"
+        "http://127.0.0.1:5500",
+        "https://taskflow-ai-frontend-tmd4.onrender.com"
     ],
     allow_credentials=True,
-    allow_methods=[
-        "GET",
-        "POST",
-        "PUT",
-        "DELETE"
-    ],
-    allow_headers=[
-        "Content-Type",
-        "Authorization"
-    ]
+    allow_methods=["*"],
+    allow_headers=["*"]
 )
 
 
@@ -66,6 +59,7 @@ def home():
     }
 
 
+# Include Routers
 app.include_router(task_router)
 app.include_router(user_router)
 app.include_router(project_router)
