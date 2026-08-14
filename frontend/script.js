@@ -26,17 +26,11 @@ const highPriorityTasks = document.getElementById("highPriorityTasks");
 // ==========================================
 
 function saveTasks(tasks) {
-    localStorage.setItem(
-        "taskflow_tasks",
-        JSON.stringify(tasks)
-    );
+    localStorage.setItem("taskflow_tasks", JSON.stringify(tasks));
 }
 
-
 function getCachedTasks() {
-
-    const cachedTasks =
-        localStorage.getItem("taskflow_tasks");
+    const cachedTasks = localStorage.getItem("taskflow_tasks");
 
     if (!cachedTasks) {
         return [];
@@ -45,6 +39,7 @@ function getCachedTasks() {
     try {
         return JSON.parse(cachedTasks);
     } catch (error) {
+        console.error("Cache error:", error);
         return [];
     }
 }
@@ -65,12 +60,9 @@ function isOverdue(task) {
     }
 
     const today = new Date();
-
     today.setHours(0, 0, 0, 0);
 
-    const dueDate =
-        new Date(task.due_date);
-
+    const dueDate = new Date(task.due_date);
     dueDate.setHours(0, 0, 0, 0);
 
     return dueDate < today;
@@ -85,24 +77,16 @@ function updateStatistics() {
 
     const tasks = getCachedTasks();
 
-    totalTasks.textContent =
-        tasks.length;
+    totalTasks.textContent = tasks.length;
 
     pendingTasks.textContent =
-        tasks.filter(
-            (task) => !task.completed
-        ).length;
+        tasks.filter(task => !task.completed).length;
 
     completedTasks.textContent =
-        tasks.filter(
-            (task) => task.completed
-        ).length;
+        tasks.filter(task => task.completed).length;
 
     highPriorityTasks.textContent =
-        tasks.filter(
-            (task) =>
-                task.priority === "high"
-        ).length;
+        tasks.filter(task => task.priority === "high").length;
 }
 
 
@@ -113,23 +97,19 @@ function updateStatistics() {
 function searchTasks(tasks) {
 
     const searchText =
-        searchTasksInput.value
-            .trim()
-            .toLowerCase();
+        searchTasksInput.value.trim().toLowerCase();
 
     if (!searchText) {
         return tasks;
     }
 
-    return tasks.filter((task) => {
+    return tasks.filter(task => {
 
         const title =
-            (task.title || "")
-                .toLowerCase();
+            (task.title || "").toLowerCase();
 
         const description =
-            (task.description || "")
-                .toLowerCase();
+            (task.description || "").toLowerCase();
 
         return (
             title.includes(searchText) ||
@@ -145,49 +125,30 @@ function searchTasks(tasks) {
 
 function filterTasks(tasks) {
 
-    const filter =
-        filterTasksSelect.value;
+    const filter = filterTasksSelect.value;
 
     if (filter === "all") {
         return tasks;
     }
 
     if (filter === "pending") {
-
-        return tasks.filter(
-            (task) => !task.completed
-        );
+        return tasks.filter(task => !task.completed);
     }
 
     if (filter === "completed") {
-
-        return tasks.filter(
-            (task) => task.completed
-        );
+        return tasks.filter(task => task.completed);
     }
 
     if (filter === "high") {
-
-        return tasks.filter(
-            (task) =>
-                task.priority === "high"
-        );
+        return tasks.filter(task => task.priority === "high");
     }
 
     if (filter === "medium") {
-
-        return tasks.filter(
-            (task) =>
-                task.priority === "medium"
-        );
+        return tasks.filter(task => task.priority === "medium");
     }
 
     if (filter === "low") {
-
-        return tasks.filter(
-            (task) =>
-                task.priority === "low"
-        );
+        return tasks.filter(task => task.priority === "low");
     }
 
     return tasks;
@@ -202,432 +163,158 @@ function renderTasks(tasks) {
 
     updateStatistics();
 
-    let visibleTasks =
-        searchTasks(tasks);
+    let visibleTasks = searchTasks(tasks);
 
-    visibleTasks =
-        filterTasks(visibleTasks);
+    visibleTasks = filterTasks(visibleTasks);
 
     taskList.textContent = "";
 
-
     if (visibleTasks.length === 0) {
 
-        const message =
-            document.createElement("p");
+        const message = document.createElement("p");
 
-        message.textContent =
-            "No tasks found.";
+        message.textContent = "No tasks found.";
 
-        taskList.appendChild(
-            message
-        );
+        taskList.appendChild(message);
 
         return;
     }
 
+    visibleTasks.forEach(task => {
 
-    visibleTasks.forEach((task) => {
+        const taskItem = document.createElement("div");
 
-        const taskItem =
-            document.createElement("div");
-
-
-        // --------------------------------------
-        // TASK CLASS
-        // --------------------------------------
-
-        taskItem.className =
-            "task-item";
+        taskItem.className = "task-item";
 
 
-        // --------------------------------------
-        // PRIORITY COLOR
-        // --------------------------------------
-
+        // Priority class
         if (task.priority === "high") {
-
-            taskItem.classList.add(
-                "priority-high"
-            );
+            taskItem.classList.add("priority-high");
         }
 
         if (task.priority === "medium") {
-
-            taskItem.classList.add(
-                "priority-medium"
-            );
+            taskItem.classList.add("priority-medium");
         }
 
         if (task.priority === "low") {
-
-            taskItem.classList.add(
-                "priority-low"
-            );
+            taskItem.classList.add("priority-low");
         }
 
 
-        // --------------------------------------
-        // OVERDUE
-        // --------------------------------------
-
+        // Overdue
         if (isOverdue(task)) {
-
-            taskItem.classList.add(
-                "overdue"
-            );
+            taskItem.classList.add("overdue");
         }
 
 
-        // --------------------------------------
-        // TITLE
-        // --------------------------------------
-
-        const title =
-            document.createElement("h3");
-
-        title.textContent =
-            task.title;
+        // Title
+        const title = document.createElement("h3");
+        title.textContent = task.title;
 
 
-        // --------------------------------------
-        // DESCRIPTION
-        // --------------------------------------
-
-        const description =
-            document.createElement("p");
+        // Description
+        const description = document.createElement("p");
 
         description.textContent =
-            `Description: ${
-                task.description ||
-                "No description"
-            }`;
+            `Description: ${task.description || "No description"}`;
 
 
-        // --------------------------------------
-        // PRIORITY
-        // --------------------------------------
-
-        const priority =
-            document.createElement("p");
+        // Priority
+        const priority = document.createElement("p");
 
         priority.textContent =
-            `Priority: ${
-                task.priority
-            }`;
+            `Priority: ${task.priority}`;
 
 
-        // --------------------------------------
-        // DUE DATE
-        // --------------------------------------
-
-        const dueDate =
-            document.createElement("p");
+        // Due date
+        const dueDate = document.createElement("p");
 
         dueDate.textContent =
-            `Due Date: ${
-                task.due_date ||
-                "Not set"
-            }`;
+            `Due Date: ${task.due_date || "Not set"}`;
 
 
-        // --------------------------------------
-        // PROJECT ID
-        // --------------------------------------
-
-        const project =
-            document.createElement("p");
+        // Project
+        const project = document.createElement("p");
 
         project.textContent =
-            `Project ID: ${
-                task.project_id
-            }`;
+            `Project ID: ${task.project_id}`;
 
 
-        // --------------------------------------
-        // STATUS
-        // --------------------------------------
-
-        const status =
-            document.createElement("p");
-
+        // Status
+        const status = document.createElement("p");
 
         if (isOverdue(task)) {
 
-            status.textContent =
-                "Status: Overdue";
-
-            status.className =
-                "status-overdue";
+            status.textContent = "Status: Overdue";
+            status.className = "status-overdue";
 
         } else if (task.completed) {
 
-            status.textContent =
-                "Status: Completed";
-
-            status.className =
-                "status-completed";
+            status.textContent = "Status: Completed";
+            status.className = "status-completed";
 
         } else {
 
-            status.textContent =
-                "Status: Pending";
-
-            status.className =
-                "status-pending";
+            status.textContent = "Status: Pending";
+            status.className = "status-pending";
         }
 
 
-        // --------------------------------------
-        // ACTIONS
-        // --------------------------------------
+        // Actions
+        const actions = document.createElement("div");
 
-        const actions =
-            document.createElement("div");
-
-        actions.className =
-            "task-actions";
+        actions.className = "task-actions";
 
 
-        // --------------------------------------
-        // COMPLETE BUTTON
-        // --------------------------------------
-
-        const completeButton =
-            document.createElement("button");
+        // Complete button
+        const completeButton = document.createElement("button");
 
         completeButton.textContent =
             task.completed
                 ? "Mark Pending"
                 : "Mark Complete";
 
-        completeButton.addEventListener(
-            "click",
-            () => {
-
-                toggleTaskCompletion(
-                    task
-                );
-            }
-        );
+        completeButton.addEventListener("click", () => {
+            toggleTaskCompletion(task);
+        });
 
 
-        // --------------------------------------
-        // EDIT BUTTON
-        // --------------------------------------
+        // Edit button
+        const editButton = document.createElement("button");
 
-        const editButton =
-            document.createElement("button");
+        editButton.textContent = "Edit";
 
-        editButton.textContent =
-            "Edit";
-
-        editButton.addEventListener(
-            "click",
-            () => {
-
-                editTask(task);
-            }
-        );
+        editButton.addEventListener("click", () => {
+            editTask(task);
+        });
 
 
-        // --------------------------------------
-        // DELETE BUTTON
-        // --------------------------------------
+        // Delete button
+        const deleteButton = document.createElement("button");
 
-        const deleteButton =
-            document.createElement("button");
+        deleteButton.textContent = "Delete";
 
-        deleteButton.textContent =
-            "Delete";
-
-        deleteButton.addEventListener(
-            "click",
-            () => {
-
-                deleteTask(task.id);
-            }
-        );
+        deleteButton.addEventListener("click", () => {
+            deleteTask(task.id);
+        });
 
 
-        actions.appendChild(
-            completeButton
-        );
-
-        actions.appendChild(
-            editButton
-        );
-
-        actions.appendChild(
-            deleteButton
-        );
+        actions.appendChild(completeButton);
+        actions.appendChild(editButton);
+        actions.appendChild(deleteButton);
 
 
-        // --------------------------------------
-        // ADD CONTENT
-        // --------------------------------------
+        taskItem.appendChild(title);
+        taskItem.appendChild(description);
+        taskItem.appendChild(priority);
+        taskItem.appendChild(dueDate);
+        taskItem.appendChild(project);
+        taskItem.appendChild(status);
+        taskItem.appendChild(actions);
 
-        taskItem.appendChild(
-            title
-        );
-
-        taskItem.appendChild(
-            description
-        );
-
-        taskItem.appendChild(
-            priority
-        );
-
-        taskItem.appendChild(
-            dueDate
-        );
-
-        taskItem.appendChild(
-            project
-        );
-
-        taskItem.appendChild(
-            status
-        );
-
-        taskItem.appendChild(
-            actions
-        );
-
-
-        taskList.appendChild(
-            taskItem
-        );
+        taskList.appendChild(taskItem);
     });
 }
-
-
-// ==========================================
-// LOAD SORTED TASKS FROM BACKEND
-// ==========================================
-
-async function loadSortedTasks(sortValue) {
-
-    try {
-
-        let url =
-            `${API_URL}/tasks/`;
-
-        if (sortValue === "priority") {
-
-            url =
-                `${API_URL}/tasks/?sort=priority`;
-        }
-
-        if (sortValue === "dueDate") {
-
-            url =
-                `${API_URL}/tasks/?sort=due_date`;
-        }
-
-
-        const response =
-            await fetch(url);
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Failed to load sorted tasks"
-            );
-        }
-
-
-        const tasks =
-            await response.json();
-
-
-        saveTasks(tasks);
-
-        renderTasks(tasks);
-
-    } catch (error) {
-
-        console.error(
-            "Sorting error:",
-            error
-        );
-
-        // Fallback to cached tasks
-        renderTasks(
-            getCachedTasks()
-        );
-    }
-}
-
-
-// ==========================================
-// SEARCH EVENT
-// ==========================================
-
-searchTasksInput.addEventListener(
-    "input",
-    () => {
-
-        renderTasks(
-            getCachedTasks()
-        );
-    }
-);
-
-
-// ==========================================
-// SORT EVENT
-// ==========================================
-
-sortTasksSelect.addEventListener(
-    "change",
-    () => {
-
-        const sortValue =
-            sortTasksSelect.value;
-
-
-        if (sortValue === "priority") {
-
-            loadSortedTasks(
-                "priority"
-            );
-
-            return;
-        }
-
-
-        if (sortValue === "dueDate") {
-
-            loadSortedTasks(
-                "dueDate"
-            );
-
-            return;
-        }
-
-
-        // All Tasks
-        loadTasks();
-    }
-);
-
-
-// ==========================================
-// FILTER EVENT
-// ==========================================
-
-filterTasksSelect.addEventListener(
-    "change",
-    () => {
-
-        renderTasks(
-            getCachedTasks()
-        );
-    }
-);
 
 
 // ==========================================
@@ -639,58 +326,80 @@ async function loadTasks() {
     try {
 
         const response =
-            await fetch(
-                `${API_URL}/tasks/`
-            );
-
+            await fetch(`${API_URL}/tasks/`);
 
         if (!response.ok) {
-
-            throw new Error(
-                "Failed to load tasks"
-            );
+            throw new Error("Failed to load tasks");
         }
 
-
-        const tasks =
-            await response.json();
-
+        const tasks = await response.json();
 
         saveTasks(tasks);
 
         renderTasks(tasks);
 
+        console.log("Tasks loaded:", tasks);
 
     } catch (error) {
 
-        console.error(
-            "Error loading tasks:",
-            error
-        );
+        console.error("Error loading tasks:", error);
 
-
-        const cachedTasks =
-            getCachedTasks();
-
+        const cachedTasks = getCachedTasks();
 
         if (cachedTasks.length > 0) {
 
-            renderTasks(
-                cachedTasks
-            );
+            renderTasks(cachedTasks);
 
         } else {
 
-            const message =
-                document.createElement("p");
+            taskList.textContent = "";
+
+            const message = document.createElement("p");
 
             message.textContent =
                 "Unable to load tasks.";
 
-            taskList.appendChild(
-                message
-            );
+            taskList.appendChild(message);
         }
+    }
+}
+
+
+// ==========================================
+// SORT TASKS
+// ==========================================
+
+async function loadSortedTasks(sortValue) {
+
+    try {
+
+        let url = `${API_URL}/tasks/`;
+
+        if (sortValue === "priority") {
+            url = `${API_URL}/tasks/?sort=priority`;
+        }
+
+        if (sortValue === "dueDate") {
+            url = `${API_URL}/tasks/?sort=due_date`;
+        }
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("Failed to load sorted tasks");
+        }
+
+        const tasks = await response.json();
+
+        saveTasks(tasks);
+
+        renderTasks(tasks);
+
+    } catch (error) {
+
+        console.error("Sorting error:", error);
+
+        renderTasks(getCachedTasks());
     }
 }
 
@@ -699,134 +408,109 @@ async function loadTasks() {
 // ADD TASK
 // ==========================================
 
-taskForm.addEventListener(
-    "submit",
-    async (event) => {
+taskForm.addEventListener("submit", async event => {
 
-        event.preventDefault();
+    event.preventDefault();
+
+    const title = titleInput.value.trim();
+
+    if (!title) {
+
+        titleError.textContent =
+            "Title cannot be empty.";
+
+        return;
+    }
+
+    titleError.textContent = "";
 
 
-        const title =
-            titleInput.value.trim();
+    const taskData = {
+
+        title: title,
+
+        description:
+            descriptionInput.value.trim(),
+
+        project_id:
+            Number(projectIdInput.value),
+
+        priority:
+            priorityInput.value,
+
+        due_date:
+            dueDateInput.value || null,
+
+        completed: false
+    };
 
 
-        if (!title) {
+    try {
 
-            titleError.textContent =
-                "Title cannot be empty.";
+        const response =
+            await fetch(`${API_URL}/tasks/`, {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify(taskData)
+            });
+
+
+        if (!response.ok) {
+
+            const errorData =
+                await response.json();
+
+            console.error(
+                "Create task error:",
+                errorData
+            );
+
+            alert("Task could not be created.");
 
             return;
         }
 
 
-        titleError.textContent =
-            "";
+        const newTask =
+            await response.json();
 
 
-        const taskData = {
-
-            title: title,
-
-            description:
-                descriptionInput.value.trim(),
-
-            project_id:
-                Number(
-                    projectIdInput.value
-                ),
-
-            priority:
-                priorityInput.value,
-
-            due_date:
-                dueDateInput.value ||
-                null,
-
-            completed:
-                false
-        };
+        const currentTasks =
+            getCachedTasks();
 
 
-        try {
-
-            const response =
-                await fetch(
-                    `${API_URL}/tasks/`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(
-                                taskData
-                            )
-                    }
-                );
+        currentTasks.push(newTask);
 
 
-            if (!response.ok) {
+        saveTasks(currentTasks);
 
-                const errorData =
-                    await response.json();
-
-                console.error(
-                    errorData
-                );
-
-                alert(
-                    "Task could not be created."
-                );
-
-                return;
-            }
+        renderTasks(currentTasks);
 
 
-            const newTask =
-                await response.json();
+        taskForm.reset();
+
+        priorityInput.value = "medium";
 
 
-            const currentTasks =
-                getCachedTasks();
+    } catch (error) {
 
+        console.error(
+            "Error creating task:",
+            error
+        );
 
-            currentTasks.push(
-                newTask
-            );
-
-
-            saveTasks(
-                currentTasks
-            );
-
-
-            renderTasks(
-                currentTasks
-            );
-
-
-            taskForm.reset();
-
-            priorityInput.value =
-                "medium";
-
-
-        } catch (error) {
-
-            console.error(
-                "Error creating task:",
-                error
-            );
-
-            alert(
-                "Backend connection failed."
-            );
-        }
+        alert(
+            "Backend connection failed."
+        );
     }
-);
+});
 
 
 // ==========================================
@@ -841,15 +525,11 @@ async function editTask(task) {
             task.title
         );
 
-
     if (newTitle === null) {
         return;
     }
 
-
-    const title =
-        newTitle.trim();
-
+    const title = newTitle.trim();
 
     if (!title) {
 
@@ -905,9 +585,7 @@ async function editTask(task) {
                     },
 
                     body:
-                        JSON.stringify(
-                            updatedTask
-                        )
+                        JSON.stringify(updatedTask)
                 }
             );
 
@@ -932,8 +610,7 @@ async function editTask(task) {
 
         const index =
             tasks.findIndex(
-                (item) =>
-                    item.id === task.id
+                item => item.id === task.id
             );
 
 
@@ -1005,9 +682,7 @@ async function toggleTaskCompletion(task) {
                     },
 
                     body:
-                        JSON.stringify(
-                            updatedTask
-                        )
+                        JSON.stringify(updatedTask)
                 }
             );
 
@@ -1032,8 +707,7 @@ async function toggleTaskCompletion(task) {
 
         const index =
             tasks.findIndex(
-                (item) =>
-                    item.id === task.id
+                item => item.id === task.id
             );
 
 
@@ -1107,19 +781,13 @@ async function deleteTask(taskId) {
 
         const updatedTasks =
             tasks.filter(
-                (task) =>
-                    task.id !== taskId
+                task => task.id !== taskId
             );
 
 
-        saveTasks(
-            updatedTasks
-        );
+        saveTasks(updatedTasks);
 
-
-        renderTasks(
-            updatedTasks
-        );
+        renderTasks(updatedTasks);
 
 
     } catch (error) {
@@ -1137,596 +805,7 @@ async function deleteTask(taskId) {
 
 
 // ==========================================
-// TITLE VALIDATION
-// ==========================================
-
-titleInput.addEventListener(
-    "input",
-    () => {
-
-        if (
-            titleInput.value.trim()
-        ) {
-
-            titleError.textContent =
-                "";
-        }
-    }
-);
-
-
-// ==========================================
-// PAGE LOAD
-// ==========================================
-
-loadTasks();
-
-const API_URL = "https://taskflow-ai-backend-syk7.onrender.com";
-
-const taskForm = document.getElementById("taskForm");
-const taskList = document.getElementById("taskList");
-
-const sortTasksSelect = document.getElementById("sortTasks");
-const filterTasksSelect = document.getElementById("filterTasks");
-const searchTasksInput = document.getElementById("searchTasks");
-
-const titleInput = document.getElementById("title");
-const descriptionInput = document.getElementById("description");
-const projectIdInput = document.getElementById("projectId");
-const priorityInput = document.getElementById("priority");
-const dueDateInput = document.getElementById("dueDate");
-
-const titleError = document.getElementById("titleError");
-
-const totalTasks = document.getElementById("totalTasks");
-const pendingTasks = document.getElementById("pendingTasks");
-const completedTasks = document.getElementById("completedTasks");
-const highPriorityTasks = document.getElementById("highPriorityTasks");
-
-
-// ==========================================
-// LOCAL STORAGE
-// ==========================================
-
-function saveTasks(tasks) {
-    localStorage.setItem(
-        "taskflow_tasks",
-        JSON.stringify(tasks)
-    );
-}
-
-
-function getCachedTasks() {
-
-    const cachedTasks =
-        localStorage.getItem("taskflow_tasks");
-
-    if (!cachedTasks) {
-        return [];
-    }
-
-    try {
-        return JSON.parse(cachedTasks);
-    } catch (error) {
-        return [];
-    }
-}
-
-
-// ==========================================
-// OVERDUE CHECK
-// ==========================================
-
-function isOverdue(task) {
-
-    if (task.completed) {
-        return false;
-    }
-
-    if (!task.due_date) {
-        return false;
-    }
-
-    const today = new Date();
-
-    today.setHours(0, 0, 0, 0);
-
-    const dueDate =
-        new Date(task.due_date);
-
-    dueDate.setHours(0, 0, 0, 0);
-
-    return dueDate < today;
-}
-
-
-// ==========================================
-// STATISTICS
-// ==========================================
-
-function updateStatistics() {
-
-    const tasks = getCachedTasks();
-
-    totalTasks.textContent =
-        tasks.length;
-
-    pendingTasks.textContent =
-        tasks.filter(
-            (task) => !task.completed
-        ).length;
-
-    completedTasks.textContent =
-        tasks.filter(
-            (task) => task.completed
-        ).length;
-
-    highPriorityTasks.textContent =
-        tasks.filter(
-            (task) =>
-                task.priority === "high"
-        ).length;
-}
-
-
-// ==========================================
 // SEARCH
-// ==========================================
-
-function searchTasks(tasks) {
-
-    const searchText =
-        searchTasksInput.value
-            .trim()
-            .toLowerCase();
-
-    if (!searchText) {
-        return tasks;
-    }
-
-    return tasks.filter((task) => {
-
-        const title =
-            (task.title || "")
-                .toLowerCase();
-
-        const description =
-            (task.description || "")
-                .toLowerCase();
-
-        return (
-            title.includes(searchText) ||
-            description.includes(searchText)
-        );
-    });
-}
-
-
-// ==========================================
-// FILTER
-// ==========================================
-
-function filterTasks(tasks) {
-
-    const filter =
-        filterTasksSelect.value;
-
-    if (filter === "all") {
-        return tasks;
-    }
-
-    if (filter === "pending") {
-
-        return tasks.filter(
-            (task) => !task.completed
-        );
-    }
-
-    if (filter === "completed") {
-
-        return tasks.filter(
-            (task) => task.completed
-        );
-    }
-
-    if (filter === "high") {
-
-        return tasks.filter(
-            (task) =>
-                task.priority === "high"
-        );
-    }
-
-    if (filter === "medium") {
-
-        return tasks.filter(
-            (task) =>
-                task.priority === "medium"
-        );
-    }
-
-    if (filter === "low") {
-
-        return tasks.filter(
-            (task) =>
-                task.priority === "low"
-        );
-    }
-
-    return tasks;
-}
-
-
-// ==========================================
-// RENDER TASKS
-// ==========================================
-
-function renderTasks(tasks) {
-
-    updateStatistics();
-
-    let visibleTasks =
-        searchTasks(tasks);
-
-    visibleTasks =
-        filterTasks(visibleTasks);
-
-    taskList.textContent = "";
-
-
-    if (visibleTasks.length === 0) {
-
-        const message =
-            document.createElement("p");
-
-        message.textContent =
-            "No tasks found.";
-
-        taskList.appendChild(
-            message
-        );
-
-        return;
-    }
-
-
-    visibleTasks.forEach((task) => {
-
-        const taskItem =
-            document.createElement("div");
-
-
-        // --------------------------------------
-        // TASK CLASS
-        // --------------------------------------
-
-        taskItem.className =
-            "task-item";
-
-
-        // --------------------------------------
-        // PRIORITY COLOR
-        // --------------------------------------
-
-        if (task.priority === "high") {
-
-            taskItem.classList.add(
-                "priority-high"
-            );
-        }
-
-        if (task.priority === "medium") {
-
-            taskItem.classList.add(
-                "priority-medium"
-            );
-        }
-
-        if (task.priority === "low") {
-
-            taskItem.classList.add(
-                "priority-low"
-            );
-        }
-
-
-        // --------------------------------------
-        // OVERDUE
-        // --------------------------------------
-
-        if (isOverdue(task)) {
-
-            taskItem.classList.add(
-                "overdue"
-            );
-        }
-
-
-        // --------------------------------------
-        // TITLE
-        // --------------------------------------
-
-        const title =
-            document.createElement("h3");
-
-        title.textContent =
-            task.title;
-
-
-        // --------------------------------------
-        // DESCRIPTION
-        // --------------------------------------
-
-        const description =
-            document.createElement("p");
-
-        description.textContent =
-            `Description: ${
-                task.description ||
-                "No description"
-            }`;
-
-
-        // --------------------------------------
-        // PRIORITY
-        // --------------------------------------
-
-        const priority =
-            document.createElement("p");
-
-        priority.textContent =
-            `Priority: ${
-                task.priority
-            }`;
-
-
-        // --------------------------------------
-        // DUE DATE
-        // --------------------------------------
-
-        const dueDate =
-            document.createElement("p");
-
-        dueDate.textContent =
-            `Due Date: ${
-                task.due_date ||
-                "Not set"
-            }`;
-
-
-        // --------------------------------------
-        // PROJECT ID
-        // --------------------------------------
-
-        const project =
-            document.createElement("p");
-
-        project.textContent =
-            `Project ID: ${
-                task.project_id
-            }`;
-
-
-        // --------------------------------------
-        // STATUS
-        // --------------------------------------
-
-        const status =
-            document.createElement("p");
-
-
-        if (isOverdue(task)) {
-
-            status.textContent =
-                "Status: Overdue";
-
-            status.className =
-                "status-overdue";
-
-        } else if (task.completed) {
-
-            status.textContent =
-                "Status: Completed";
-
-            status.className =
-                "status-completed";
-
-        } else {
-
-            status.textContent =
-                "Status: Pending";
-
-            status.className =
-                "status-pending";
-        }
-
-
-        // --------------------------------------
-        // ACTIONS
-        // --------------------------------------
-
-        const actions =
-            document.createElement("div");
-
-        actions.className =
-            "task-actions";
-
-
-        // --------------------------------------
-        // COMPLETE BUTTON
-        // --------------------------------------
-
-        const completeButton =
-            document.createElement("button");
-
-        completeButton.textContent =
-            task.completed
-                ? "Mark Pending"
-                : "Mark Complete";
-
-        completeButton.addEventListener(
-            "click",
-            () => {
-
-                toggleTaskCompletion(
-                    task
-                );
-            }
-        );
-
-
-        // --------------------------------------
-        // EDIT BUTTON
-        // --------------------------------------
-
-        const editButton =
-            document.createElement("button");
-
-        editButton.textContent =
-            "Edit";
-
-        editButton.addEventListener(
-            "click",
-            () => {
-
-                editTask(task);
-            }
-        );
-
-
-        // --------------------------------------
-        // DELETE BUTTON
-        // --------------------------------------
-
-        const deleteButton =
-            document.createElement("button");
-
-        deleteButton.textContent =
-            "Delete";
-
-        deleteButton.addEventListener(
-            "click",
-            () => {
-
-                deleteTask(task.id);
-            }
-        );
-
-
-        actions.appendChild(
-            completeButton
-        );
-
-        actions.appendChild(
-            editButton
-        );
-
-        actions.appendChild(
-            deleteButton
-        );
-
-
-        // --------------------------------------
-        // ADD CONTENT
-        // --------------------------------------
-
-        taskItem.appendChild(
-            title
-        );
-
-        taskItem.appendChild(
-            description
-        );
-
-        taskItem.appendChild(
-            priority
-        );
-
-        taskItem.appendChild(
-            dueDate
-        );
-
-        taskItem.appendChild(
-            project
-        );
-
-        taskItem.appendChild(
-            status
-        );
-
-        taskItem.appendChild(
-            actions
-        );
-
-
-        taskList.appendChild(
-            taskItem
-        );
-    });
-}
-
-
-// ==========================================
-// LOAD SORTED TASKS FROM BACKEND
-// ==========================================
-
-async function loadSortedTasks(sortValue) {
-
-    try {
-
-        let url =
-            `${API_URL}/tasks/`;
-
-        if (sortValue === "priority") {
-
-            url =
-                `${API_URL}/tasks/?sort=priority`;
-        }
-
-        if (sortValue === "dueDate") {
-
-            url =
-                `${API_URL}/tasks/?sort=due_date`;
-        }
-
-
-        const response =
-            await fetch(url);
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Failed to load sorted tasks"
-            );
-        }
-
-
-        const tasks =
-            await response.json();
-
-
-        saveTasks(tasks);
-
-        renderTasks(tasks);
-
-    } catch (error) {
-
-        console.error(
-            "Sorting error:",
-            error
-        );
-
-        // Fallback to cached tasks
-        renderTasks(
-            getCachedTasks()
-        );
-    }
-}
-
-
-// ==========================================
-// SEARCH EVENT
 // ==========================================
 
 searchTasksInput.addEventListener(
@@ -1741,45 +820,7 @@ searchTasksInput.addEventListener(
 
 
 // ==========================================
-// SORT EVENT
-// ==========================================
-
-sortTasksSelect.addEventListener(
-    "change",
-    () => {
-
-        const sortValue =
-            sortTasksSelect.value;
-
-
-        if (sortValue === "priority") {
-
-            loadSortedTasks(
-                "priority"
-            );
-
-            return;
-        }
-
-
-        if (sortValue === "dueDate") {
-
-            loadSortedTasks(
-                "dueDate"
-            );
-
-            return;
-        }
-
-
-        // All Tasks
-        loadTasks();
-    }
-);
-
-
-// ==========================================
-// FILTER EVENT
+// FILTER
 // ==========================================
 
 filterTasksSelect.addEventListener(
@@ -1794,509 +835,36 @@ filterTasksSelect.addEventListener(
 
 
 // ==========================================
-// LOAD TASKS
+// SORT
 // ==========================================
 
-async function loadTasks() {
+sortTasksSelect.addEventListener(
+    "change",
+    () => {
 
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/tasks/`
-            );
+        const sortValue =
+            sortTasksSelect.value;
 
 
-        if (!response.ok) {
+        if (sortValue === "priority") {
 
-            throw new Error(
-                "Failed to load tasks"
-            );
-        }
-
-
-        const tasks =
-            await response.json();
-
-
-        saveTasks(tasks);
-
-        renderTasks(tasks);
-
-
-    } catch (error) {
-
-        console.error(
-            "Error loading tasks:",
-            error
-        );
-
-
-        const cachedTasks =
-            getCachedTasks();
-
-
-        if (cachedTasks.length > 0) {
-
-            renderTasks(
-                cachedTasks
-            );
-
-        } else {
-
-            const message =
-                document.createElement("p");
-
-            message.textContent =
-                "Unable to load tasks.";
-
-            taskList.appendChild(
-                message
-            );
-        }
-    }
-}
-
-
-// ==========================================
-// ADD TASK
-// ==========================================
-
-taskForm.addEventListener(
-    "submit",
-    async (event) => {
-
-        event.preventDefault();
-
-
-        const title =
-            titleInput.value.trim();
-
-
-        if (!title) {
-
-            titleError.textContent =
-                "Title cannot be empty.";
+            loadSortedTasks("priority");
 
             return;
         }
 
 
-        titleError.textContent =
-            "";
+        if (sortValue === "dueDate") {
 
+            loadSortedTasks("dueDate");
 
-        const taskData = {
-
-            title: title,
-
-            description:
-                descriptionInput.value.trim(),
-
-            project_id:
-                Number(
-                    projectIdInput.value
-                ),
-
-            priority:
-                priorityInput.value,
-
-            due_date:
-                dueDateInput.value ||
-                null,
-
-            completed:
-                false
-        };
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `${API_URL}/tasks/`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:
-                            JSON.stringify(
-                                taskData
-                            )
-                    }
-                );
-
-
-            if (!response.ok) {
-
-                const errorData =
-                    await response.json();
-
-                console.error(
-                    errorData
-                );
-
-                alert(
-                    "Task could not be created."
-                );
-
-                return;
-            }
-
-
-            const newTask =
-                await response.json();
-
-
-            const currentTasks =
-                getCachedTasks();
-
-
-            currentTasks.push(
-                newTask
-            );
-
-
-            saveTasks(
-                currentTasks
-            );
-
-
-            renderTasks(
-                currentTasks
-            );
-
-
-            taskForm.reset();
-
-            priorityInput.value =
-                "medium";
-
-
-        } catch (error) {
-
-            console.error(
-                "Error creating task:",
-                error
-            );
-
-            alert(
-                "Backend connection failed."
-            );
+            return;
         }
+
+
+        loadTasks();
     }
 );
-
-
-// ==========================================
-// EDIT TASK
-// ==========================================
-
-async function editTask(task) {
-
-    const newTitle =
-        prompt(
-            "Enter new task title:",
-            task.title
-        );
-
-
-    if (newTitle === null) {
-        return;
-    }
-
-
-    const title =
-        newTitle.trim();
-
-
-    if (!title) {
-
-        alert(
-            "Title cannot be empty."
-        );
-
-        return;
-    }
-
-
-    const newDescription =
-        prompt(
-            "Enter new description:",
-            task.description || ""
-        );
-
-
-    const updatedTask = {
-
-        title: title,
-
-        description:
-            newDescription === null
-                ? task.description
-                : newDescription.trim(),
-
-        completed:
-            task.completed,
-
-        project_id:
-            task.project_id,
-
-        priority:
-            task.priority,
-
-        due_date:
-            task.due_date
-    };
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/tasks/${task.id}`,
-                {
-                    method: "PUT",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify(
-                            updatedTask
-                        )
-                }
-            );
-
-
-        if (!response.ok) {
-
-            alert(
-                "Task could not be updated."
-            );
-
-            return;
-        }
-
-
-        const updatedTaskFromServer =
-            await response.json();
-
-
-        const tasks =
-            getCachedTasks();
-
-
-        const index =
-            tasks.findIndex(
-                (item) =>
-                    item.id === task.id
-            );
-
-
-        if (index !== -1) {
-
-            tasks[index] =
-                updatedTaskFromServer;
-        }
-
-
-        saveTasks(tasks);
-
-        renderTasks(tasks);
-
-
-    } catch (error) {
-
-        console.error(
-            "Error updating task:",
-            error
-        );
-
-        alert(
-            "Backend connection failed."
-        );
-    }
-}
-
-
-// ==========================================
-// COMPLETE / PENDING
-// ==========================================
-
-async function toggleTaskCompletion(task) {
-
-    const updatedTask = {
-
-        title:
-            task.title,
-
-        description:
-            task.description,
-
-        completed:
-            !task.completed,
-
-        project_id:
-            task.project_id,
-
-        priority:
-            task.priority,
-
-        due_date:
-            task.due_date
-    };
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/tasks/${task.id}`,
-                {
-                    method: "PUT",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body:
-                        JSON.stringify(
-                            updatedTask
-                        )
-                }
-            );
-
-
-        if (!response.ok) {
-
-            alert(
-                "Task status could not be updated."
-            );
-
-            return;
-        }
-
-
-        const updatedTaskFromServer =
-            await response.json();
-
-
-        const tasks =
-            getCachedTasks();
-
-
-        const index =
-            tasks.findIndex(
-                (item) =>
-                    item.id === task.id
-            );
-
-
-        if (index !== -1) {
-
-            tasks[index] =
-                updatedTaskFromServer;
-        }
-
-
-        saveTasks(tasks);
-
-        renderTasks(tasks);
-
-
-    } catch (error) {
-
-        console.error(
-            "Error updating task status:",
-            error
-        );
-
-        alert(
-            "Backend connection failed."
-        );
-    }
-}
-
-
-// ==========================================
-// DELETE TASK
-// ==========================================
-
-async function deleteTask(taskId) {
-
-    const confirmed =
-        confirm(
-            "Are you sure you want to delete this task?"
-        );
-
-
-    if (!confirmed) {
-        return;
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}/tasks/${taskId}`,
-                {
-                    method: "DELETE"
-                }
-            );
-
-
-        if (!response.ok) {
-
-            alert(
-                "Task could not be deleted."
-            );
-
-            return;
-        }
-
-
-        const tasks =
-            getCachedTasks();
-
-
-        const updatedTasks =
-            tasks.filter(
-                (task) =>
-                    task.id !== taskId
-            );
-
-
-        saveTasks(
-            updatedTasks
-        );
-
-
-        renderTasks(
-            updatedTasks
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Error deleting task:",
-            error
-        );
-
-        alert(
-            "Backend connection failed."
-        );
-    }
-}
 
 
 // ==========================================
@@ -2307,12 +875,9 @@ titleInput.addEventListener(
     "input",
     () => {
 
-        if (
-            titleInput.value.trim()
-        ) {
+        if (titleInput.value.trim()) {
 
-            titleError.textContent =
-                "";
+            titleError.textContent = "";
         }
     }
 );
