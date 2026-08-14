@@ -857,11 +857,9 @@ sortTasksSelect.addEventListener(
         if (sortValue === "dueDate") {
 
             loadSortedTasks("dueDate");
-
+ 
             return;
         }
-
-
         loadTasks();
     }
 );
