@@ -9,23 +9,31 @@ from . import models
 from .routes.tasks import router as task_router
 from .routes.users import router as user_router
 from .routes.projects import router as project_router
+from .routes.ai import router as ai_router
 
 
+# Create database tables
 Base.metadata.create_all(bind=engine)
 
 
+# Create FastAPI application
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION
 )
 
 
-# CORS Middleware
+# ==========================================
+# CORS
+# ==========================================
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5500",
         "http://127.0.0.1:5500",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
         "https://taskflow-ai-frontend-tmd4.onrender.com"
     ],
     allow_credentials=True,
@@ -34,7 +42,10 @@ app.add_middleware(
 )
 
 
-# Custom Middleware
+# ==========================================
+# REQUEST LOGGER
+# ==========================================
+
 @app.middleware("http")
 async def log_request(request: Request, call_next):
     start_time = time.perf_counter()
@@ -51,15 +62,36 @@ async def log_request(request: Request, call_next):
     return response
 
 
+# ==========================================
+# HOME
+# ==========================================
+
 @app.get("/")
 def home():
     return {
         "message": "Welcome to TaskFlow AI",
-        "version": settings.APP_VERSION
+        "version": settings.APP_VERSION,
+        "status": "running"
     }
 
 
-# Include Routers
+# ==========================================
+# HEALTH CHECK
+# ==========================================
+
+@app.get("/health")
+def health():
+    return {
+        "status": "healthy",
+        "service": "TaskFlow AI Backend"
+    }
+
+
+# ==========================================
+# ROUTERS
+# ==========================================
+
 app.include_router(task_router)
 app.include_router(user_router)
 app.include_router(project_router)
+app.include_router(ai_router)
