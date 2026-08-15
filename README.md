@@ -1,61 +1,103 @@
 # TaskFlow AI
 
-A full-stack Task Management Dashboard built with FastAPI, SQLite, HTML, CSS, and JavaScript.
+## Full-Stack AI-Assisted Task Management Platform
 
-## 📌 Project Overview
+TaskFlow AI is a full-stack task and project management platform built with FastAPI, SQLAlchemy, JavaScript, and a relational database.
 
-TaskFlow AI is a task management application designed to help users create, manage, update, delete, and organize their tasks through a simple and responsive dashboard.
+The application allows users to create, update, delete, search, sort, and manage tasks. It also includes an Algorithms Engine for sorting/searching and an AI Quick Add feature that converts natural-language task descriptions into structured tasks.
 
-The project uses a FastAPI backend with SQLite database and a responsive frontend built using HTML, CSS, and JavaScript.
+---
 
-## ✨ Features
+# Features
 
-- Create new tasks
-- View all tasks
-- Edit existing tasks
+## Core Task Management
+
+- Create tasks
+- List tasks
+- Get task by ID
+- Update tasks
 - Delete tasks
+- Mark tasks as completed/pending
 - Task priority management
-- Due date support
+- Due-date support
+- Project ID support
 - Task statistics
-- Responsive user interface
-- Backend API using FastAPI
-- SQLite database integration
+- Search tasks
+- Filter tasks
+- Sort tasks
+- Responsive dashboard
 - LocalStorage caching
-- Search and task management functionality
 
-## 🛠️ Tech Stack
+## Algorithms Engine
 
-### Frontend
+- Insertion Sort
+- Binary Search
+- Linear Search
+- Priority sorting endpoint
+- Exact-title search endpoint
+- Comparison-count benchmarks
+- Automated PASS/FAIL algorithm checks
+
+## AI Quick Add
+
+- Natural-language task input
+- Deterministic rule-based parser
+- Automatic priority detection
+- Automatic due-date hint detection
+- Automatic title extraction
+- Zero API keys required
+- Zero external API/network calls required
+
+---
+
+# Tech Stack
+
+## Frontend
+
 - HTML5
 - CSS3
 - JavaScript
+- Fetch API
 - LocalStorage
 
-### Backend
+## Backend
+
 - Python
 - FastAPI
 - Uvicorn
 - SQLAlchemy
+- Pydantic
 
-### Database
-- SQLite
+## Database
 
-## 📁 Project Structure
+- PostgreSQL in production
+- SQLite for local development
+
+---
+
+# Project Structure
 
 ```text
-taskflow-ai/
+TaskFlow AI/
 │
 ├── backend/
-│   └── app/
-│       ├── database.py
-│       ├── main.py
-│       ├── models.py
-│       └── schemas.py
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── database.py
+│   │   ├── models.py
+│   │   ├── schemas.py
+│   │   ├── crud.py
+│   │   ├── ai.py
+│   │   ├── routers/
+│   │   └── utils/
+│   │
+│   ├── requirements.txt
+│   └── ...
 │
 ├── frontend/
 │   ├── index.html
 │   ├── styles.css
 │   └── script.js
 │
-├── .gitignore
-└── README.md
+├── README.md
+└── .gitignore
