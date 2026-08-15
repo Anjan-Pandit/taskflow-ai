@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 
 from ..ai import analyze_task
 
@@ -9,9 +10,14 @@ router = APIRouter(
 )
 
 
+class AIQuickAddRequest(BaseModel):
+    title: str
+    description: str = ""
+
+
 @router.post("/analyze-task")
-def analyze_task_api(
-    title: str,
-    description: str
-):
-    return analyze_task(title, description)
+def analyze_task_api(request: AIQuickAddRequest):
+    return analyze_task(
+        request.title,
+        request.description
+    )
