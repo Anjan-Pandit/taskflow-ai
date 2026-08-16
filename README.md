@@ -1,64 +1,125 @@
-# TaskFlow AI
+# 🚀 TaskFlow AI
 
-## Full-Stack AI-Assisted Task Management Platform
+### AI-Assisted Task Management Dashboard
 
-TaskFlow AI is a full-stack task and project management platform built with FastAPI, SQLAlchemy, JavaScript, and a relational database.
+TaskFlow AI is a full-stack task management application built with **FastAPI, SQLite, SQLAlchemy, HTML, CSS, JavaScript, and AI-assisted task analysis**.
 
-The application allows users to create, update, delete, search, sort, and manage tasks. It also includes an Algorithms Engine for sorting/searching and an AI Quick Add feature that converts natural-language task descriptions into structured tasks.
+It allows users to create, manage, search, filter, sort, complete, edit, and delete tasks. The application also includes an **AI Quick Add** feature that converts natural-language task descriptions into structured task information.
 
 ---
 
-# Features
+## ✨ Features
 
-## Core Task Management
+### 🤖 AI Quick Add
 
-- Create tasks
-- List tasks
-- Get task by ID
-- Update tasks
+Describe a task in simple natural language and AI analyzes it to generate:
+
+- Task title
+- Description
+- Priority
+- Category
+- Project ID
+- Due date
+
+Example:
+
+> Complete my Python assignment tomorrow with high priority.
+
+AI converts the input into structured task information that can be reviewed before creating the task.
+
+---
+
+### 📋 Task Management
+
+- Create new tasks
+- Edit existing tasks
 - Delete tasks
-- Mark tasks as completed/pending
-- Task priority management
-- Due-date support
-- Project ID support
-- Task statistics
-- Search tasks
-- Filter tasks
-- Sort tasks
-- Responsive dashboard
-- LocalStorage caching
+- Mark tasks as completed
+- Mark completed tasks as pending
+- Task descriptions
+- Optional Project ID
+- Priority levels
+- Due dates
+- Overdue task detection
 
-## Algorithms Engine
+---
+
+### 🔎 Search & Filtering
+
+Search tasks by:
+
+- Title
+- Description
+
+Filter tasks by:
+
+- All
+- Pending
+- Completed
+- High Priority
+- Medium Priority
+- Low Priority
+
+---
+
+### 📊 Sorting
+
+Tasks can be sorted using:
+
+- Priority
+- Due Date
+
+The project also implements custom algorithms including:
 
 - Insertion Sort
-- Binary Search
 - Linear Search
-- Priority sorting endpoint
-- Exact-title search endpoint
-- Comparison-count benchmarks
-- Automated PASS/FAIL algorithm checks
-
-## AI Quick Add
-
-- Natural-language task input
-- Deterministic rule-based parser
-- Automatic priority detection
-- Automatic due-date hint detection
-- Automatic title extraction
-- Zero API keys required
-- Zero external API/network calls required
+- Binary Search
 
 ---
 
-# Tech Stack
+### 📈 Dashboard Statistics
+
+The dashboard displays:
+
+- Total Tasks
+- Pending Tasks
+- Completed Tasks
+- High Priority Tasks
+
+---
+
+## 🧠 Algorithms Engine
+
+TaskFlow AI includes a custom algorithms module.
+
+### Insertion Sort
+
+Used for task sorting.
+
+### Linear Search
+
+Used for sequential task searching.
+
+### Binary Search
+
+Used for efficient searching on sorted data.
+
+### Benchmark
+
+The backend provides a benchmark endpoint to evaluate sorting/searching performance.
+
+---
+
+# 🛠️ Tech Stack
 
 ## Frontend
 
 - HTML5
 - CSS3
 - JavaScript
-- Fetch API
 - LocalStorage
+- Fetch API
+- Responsive Design
 
 ## Backend
 
@@ -66,16 +127,23 @@ The application allows users to create, update, delete, search, sort, and manage
 - FastAPI
 - Uvicorn
 - SQLAlchemy
+- SQLite
 - Pydantic
+
+## AI
+
+- AI-assisted task analysis
+- Natural-language task processing
+- Automatic priority and due-date extraction
 
 ## Database
 
-- PostgreSQL in production
-- SQLite for local development
+- SQLite
+- SQLAlchemy ORM
 
 ---
 
-# Project Structure
+# 📁 Project Structure
 
 ```text
 TaskFlow AI/
@@ -87,17 +155,23 @@ TaskFlow AI/
 │   │   ├── models.py
 │   │   ├── schemas.py
 │   │   ├── crud.py
-│   │   ├── ai.py
-│   │   ├── routers/
+│   │   │
+│   │   ├── routes/
+│   │   │   ├── tasks.py
+│   │   │   ├── users.py
+│   │   │   ├── projects.py
+│   │   │   └── ai.py
+│   │   │
 │   │   └── utils/
+│   │       └── algorithms.py
 │   │
 │   ├── requirements.txt
-│   └── ...
+│   └── taskflow.db
 │
 ├── frontend/
 │   ├── index.html
-│   ├── styles.css
+│   ├── style.css
 │   └── script.js
 │
-├── README.md
-└── .gitignore
+├── .gitignore
+└── README.md
