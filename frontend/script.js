@@ -1,4 +1,5 @@
-const API_URL = "https://taskflow-ai-backend-syk7.onrender.com";
+const API_URL =
+    "https://taskflow-ai-backend-syk7.onrender.com";
 
 
 // ==========================================
@@ -81,7 +82,9 @@ function saveTasks(tasks) {
 function getCachedTasks() {
 
     const cachedTasks =
-        localStorage.getItem("taskflow_tasks");
+        localStorage.getItem(
+            "taskflow_tasks"
+        );
 
     if (!cachedTasks) {
         return [];
@@ -89,7 +92,9 @@ function getCachedTasks() {
 
     try {
 
-        return JSON.parse(cachedTasks);
+        return JSON.parse(
+            cachedTasks
+        );
 
     } catch (error) {
 
@@ -117,7 +122,8 @@ function isOverdue(task) {
         return false;
     }
 
-    const today = new Date();
+    const today =
+        new Date();
 
     today.setHours(
         0,
@@ -127,7 +133,9 @@ function isOverdue(task) {
     );
 
     const dueDate =
-        new Date(task.due_date);
+        new Date(
+            task.due_date
+        );
 
     dueDate.setHours(
         0,
@@ -154,17 +162,20 @@ function updateStatistics() {
 
     pendingTasks.textContent =
         tasks.filter(
-            task => !task.completed
+            task =>
+                !task.completed
         ).length;
 
     completedTasks.textContent =
         tasks.filter(
-            task => task.completed
+            task =>
+                task.completed
         ).length;
 
     highPriorityTasks.textContent =
         tasks.filter(
-            task => task.priority === "high"
+            task =>
+                task.priority === "high"
         ).length;
 }
 
@@ -184,21 +195,31 @@ function searchTasks(tasks) {
         return tasks;
     }
 
-    return tasks.filter(task => {
+    return tasks.filter(
+        task => {
 
-        const title =
-            (task.title || "")
-                .toLowerCase();
+            const title =
+                (
+                    task.title ||
+                    ""
+                ).toLowerCase();
 
-        const description =
-            (task.description || "")
-                .toLowerCase();
+            const description =
+                (
+                    task.description ||
+                    ""
+                ).toLowerCase();
 
-        return (
-            title.includes(searchText) ||
-            description.includes(searchText)
-        );
-    });
+            return (
+                title.includes(
+                    searchText
+                ) ||
+                description.includes(
+                    searchText
+                )
+            );
+        }
+    );
 }
 
 
@@ -218,35 +239,40 @@ function filterTasks(tasks) {
     if (filter === "pending") {
 
         return tasks.filter(
-            task => !task.completed
+            task =>
+                !task.completed
         );
     }
 
     if (filter === "completed") {
 
         return tasks.filter(
-            task => task.completed
+            task =>
+                task.completed
         );
     }
 
     if (filter === "high") {
 
         return tasks.filter(
-            task => task.priority === "high"
+            task =>
+                task.priority === "high"
         );
     }
 
     if (filter === "medium") {
 
         return tasks.filter(
-            task => task.priority === "medium"
+            task =>
+                task.priority === "medium"
         );
     }
 
     if (filter === "low") {
 
         return tasks.filter(
-            task => task.priority === "low"
+            task =>
+                task.priority === "low"
         );
     }
 
@@ -266,15 +292,21 @@ function renderTasks(tasks) {
         searchTasks(tasks);
 
     visibleTasks =
-        filterTasks(visibleTasks);
+        filterTasks(
+            visibleTasks
+        );
 
     taskList.textContent = "";
 
 
-    if (visibleTasks.length === 0) {
+    if (
+        visibleTasks.length === 0
+    ) {
 
         const message =
-            document.createElement("p");
+            document.createElement(
+                "p"
+            );
 
         message.textContent =
             "No tasks found.";
@@ -287,276 +319,316 @@ function renderTasks(tasks) {
     }
 
 
-    visibleTasks.forEach(task => {
+    visibleTasks.forEach(
+        task => {
 
-        const taskItem =
-            document.createElement("div");
+            const taskItem =
+                document.createElement(
+                    "div"
+                );
 
-        taskItem.className =
-            "task-item";
-
-
-        // ==================================
-        // PRIORITY CLASS
-        // ==================================
-
-        if (task.priority === "high") {
-
-            taskItem.classList.add(
-                "priority-high"
-            );
-        }
-
-        if (task.priority === "medium") {
-
-            taskItem.classList.add(
-                "priority-medium"
-            );
-        }
-
-        if (task.priority === "low") {
-
-            taskItem.classList.add(
-                "priority-low"
-            );
-        }
+            taskItem.className =
+                "task-item";
 
 
-        // ==================================
-        // OVERDUE
-        // ==================================
+            // ==================================
+            // PRIORITY CLASS
+            // ==================================
 
-        if (isOverdue(task)) {
+            if (
+                task.priority === "high"
+            ) {
 
-            taskItem.classList.add(
-                "overdue"
-            );
-        }
-
-
-        // ==================================
-        // TITLE
-        // ==================================
-
-        const title =
-            document.createElement("h3");
-
-        title.textContent =
-            task.title;
-
-
-        // ==================================
-        // DESCRIPTION
-        // ==================================
-
-        const description =
-            document.createElement("p");
-
-        description.textContent =
-            `Description: ${
-                task.description ||
-                "No description"
-            }`;
-
-
-        // ==================================
-        // PRIORITY
-        // ==================================
-
-        const priority =
-            document.createElement("p");
-
-        priority.textContent =
-            `Priority: ${task.priority}`;
-
-
-        // ==================================
-        // DUE DATE
-        // ==================================
-
-        const dueDate =
-            document.createElement("p");
-
-        dueDate.textContent =
-            `Due Date: ${
-                task.due_date ||
-                "Not set"
-            }`;
-
-
-        // ==================================
-        // PROJECT
-        // ==================================
-
-        const project =
-            document.createElement("p");
-
-        project.textContent =
-            `Project ID: ${
-                task.project_id
-            }`;
-
-
-        // ==================================
-        // STATUS
-        // ==================================
-
-        const status =
-            document.createElement("p");
-
-
-        if (isOverdue(task)) {
-
-            status.textContent =
-                "Status: Overdue";
-
-            status.className =
-                "status-overdue";
-
-        } else if (task.completed) {
-
-            status.textContent =
-                "Status: Completed";
-
-            status.className =
-                "status-completed";
-
-        } else {
-
-            status.textContent =
-                "Status: Pending";
-
-            status.className =
-                "status-pending";
-        }
-
-
-        // ==================================
-        // ACTIONS
-        // ==================================
-
-        const actions =
-            document.createElement("div");
-
-        actions.className =
-            "task-actions";
-
-
-        // ==================================
-        // COMPLETE BUTTON
-        // ==================================
-
-        const completeButton =
-            document.createElement("button");
-
-        completeButton.textContent =
-            task.completed
-                ? "Mark Pending"
-                : "Mark Complete";
-
-
-        completeButton.addEventListener(
-            "click",
-            () => {
-
-                toggleTaskCompletion(task);
+                taskItem.classList.add(
+                    "priority-high"
+                );
             }
-        );
 
+            if (
+                task.priority === "medium"
+            ) {
 
-        // ==================================
-        // EDIT BUTTON
-        // ==================================
-
-        const editButton =
-            document.createElement("button");
-
-        editButton.textContent =
-            "Edit";
-
-
-        editButton.addEventListener(
-            "click",
-            () => {
-
-                editTask(task);
+                taskItem.classList.add(
+                    "priority-medium"
+                );
             }
-        );
 
+            if (
+                task.priority === "low"
+            ) {
 
-        // ==================================
-        // DELETE BUTTON
-        // ==================================
-
-        const deleteButton =
-            document.createElement("button");
-
-        deleteButton.textContent =
-            "Delete";
-
-
-        deleteButton.addEventListener(
-            "click",
-            () => {
-
-                deleteTask(task.id);
+                taskItem.classList.add(
+                    "priority-low"
+                );
             }
-        );
 
 
-        // ==================================
-        // APPEND ACTIONS
-        // ==================================
+            // ==================================
+            // OVERDUE
+            // ==================================
 
-        actions.appendChild(
-            completeButton
-        );
+            if (
+                isOverdue(task)
+            ) {
 
-        actions.appendChild(
-            editButton
-        );
-
-        actions.appendChild(
-            deleteButton
-        );
+                taskItem.classList.add(
+                    "overdue"
+                );
+            }
 
 
-        // ==================================
-        // APPEND TASK CONTENT
-        // ==================================
+            // ==================================
+            // TITLE
+            // ==================================
 
-        taskItem.appendChild(title);
+            const title =
+                document.createElement(
+                    "h3"
+                );
 
-        taskItem.appendChild(
-            description
-        );
-
-        taskItem.appendChild(
-            priority
-        );
-
-        taskItem.appendChild(
-            dueDate
-        );
-
-        taskItem.appendChild(
-            project
-        );
-
-        taskItem.appendChild(
-            status
-        );
-
-        taskItem.appendChild(
-            actions
-        );
+            title.textContent =
+                task.title;
 
 
-        taskList.appendChild(
-            taskItem
-        );
+            // ==================================
+            // DESCRIPTION
+            // ==================================
 
-    });
+            const description =
+                document.createElement(
+                    "p"
+                );
+
+            description.textContent =
+                `Description: ${
+                    task.description ||
+                    "No description"
+                }`;
+
+
+            // ==================================
+            // PRIORITY
+            // ==================================
+
+            const priority =
+                document.createElement(
+                    "p"
+                );
+
+            priority.textContent =
+                `Priority: ${
+                    task.priority
+                }`;
+
+
+            // ==================================
+            // DUE DATE
+            // ==================================
+
+            const dueDate =
+                document.createElement(
+                    "p"
+                );
+
+            dueDate.textContent =
+                `Due Date: ${
+                    task.due_date ||
+                    "Not set"
+                }`;
+
+
+            // ==================================
+            // PROJECT
+            // ==================================
+
+            const project =
+                document.createElement(
+                    "p"
+                );
+
+            project.textContent =
+                `Project ID: ${
+                    task.project_id ??
+                    "Not assigned"
+                }`;
+
+
+            // ==================================
+            // STATUS
+            // ==================================
+
+            const status =
+                document.createElement(
+                    "p"
+                );
+
+
+            if (
+                isOverdue(task)
+            ) {
+
+                status.textContent =
+                    "Status: Overdue";
+
+                status.className =
+                    "status-overdue";
+
+            } else if (
+                task.completed
+            ) {
+
+                status.textContent =
+                    "Status: Completed";
+
+                status.className =
+                    "status-completed";
+
+            } else {
+
+                status.textContent =
+                    "Status: Pending";
+
+                status.className =
+                    "status-pending";
+            }
+
+
+            // ==================================
+            // ACTIONS
+            // ==================================
+
+            const actions =
+                document.createElement(
+                    "div"
+                );
+
+            actions.className =
+                "task-actions";
+
+
+            // ==================================
+            // COMPLETE BUTTON
+            // ==================================
+
+            const completeButton =
+                document.createElement(
+                    "button"
+                );
+
+            completeButton.textContent =
+                task.completed
+                    ? "Mark Pending"
+                    : "Mark Complete";
+
+            completeButton.addEventListener(
+                "click",
+                () => {
+
+                    toggleTaskCompletion(
+                        task
+                    );
+                }
+            );
+
+
+            // ==================================
+            // EDIT BUTTON
+            // ==================================
+
+            const editButton =
+                document.createElement(
+                    "button"
+                );
+
+            editButton.textContent =
+                "Edit";
+
+            editButton.addEventListener(
+                "click",
+                () => {
+
+                    editTask(task);
+                }
+            );
+
+
+            // ==================================
+            // DELETE BUTTON
+            // ==================================
+
+            const deleteButton =
+                document.createElement(
+                    "button"
+                );
+
+            deleteButton.textContent =
+                "Delete";
+
+            deleteButton.addEventListener(
+                "click",
+                () => {
+
+                    deleteTask(
+                        task.id
+                    );
+                }
+            );
+
+
+            // ==================================
+            // APPEND ACTIONS
+            // ==================================
+
+            actions.appendChild(
+                completeButton
+            );
+
+            actions.appendChild(
+                editButton
+            );
+
+            actions.appendChild(
+                deleteButton
+            );
+
+
+            // ==================================
+            // APPEND TASK CONTENT
+            // ==================================
+
+            taskItem.appendChild(
+                title
+            );
+
+            taskItem.appendChild(
+                description
+            );
+
+            taskItem.appendChild(
+                priority
+            );
+
+            taskItem.appendChild(
+                dueDate
+            );
+
+            taskItem.appendChild(
+                project
+            );
+
+            taskItem.appendChild(
+                status
+            );
+
+            taskItem.appendChild(
+                actions
+            );
+
+            taskList.appendChild(
+                taskItem
+            );
+        }
+    );
 }
 
 
@@ -609,7 +681,9 @@ async function loadTasks() {
             getCachedTasks();
 
 
-        if (cachedTasks.length > 0) {
+        if (
+            cachedTasks.length > 0
+        ) {
 
             renderTasks(
                 cachedTasks
@@ -619,14 +693,13 @@ async function loadTasks() {
 
             taskList.textContent = "";
 
-
             const message =
-                document.createElement("p");
-
+                document.createElement(
+                    "p"
+                );
 
             message.textContent =
                 "Unable to load tasks.";
-
 
             taskList.appendChild(
                 message
@@ -650,14 +723,18 @@ async function loadSortedTasks(
             `${API_URL}/tasks/`;
 
 
-        if (sortValue === "priority") {
+        if (
+            sortValue === "priority"
+        ) {
 
             url =
                 `${API_URL}/tasks/?sort=priority`;
         }
 
 
-        if (sortValue === "dueDate") {
+        if (
+            sortValue === "dueDate"
+        ) {
 
             url =
                 `${API_URL}/tasks/?sort=due_date`;
@@ -692,7 +769,6 @@ async function loadSortedTasks(
             error
         );
 
-
         renderTasks(
             getCachedTasks()
         );
@@ -722,7 +798,6 @@ async function analyzeTaskWithAI() {
     aiStatus.textContent =
         "✨ AI is analyzing your task...";
 
-
     aiQuickAddButton.disabled =
         true;
 
@@ -742,10 +817,11 @@ async function analyzeTaskWithAI() {
 
                     body: JSON.stringify({
 
-                        title: userInput,
+                        title:
+                            userInput,
 
-                        description: ""
-
+                        description:
+                            ""
                     })
                 }
             );
@@ -756,21 +832,22 @@ async function analyzeTaskWithAI() {
             let errorData = {};
 
             try {
+
                 errorData =
                     await response.json();
+
             } catch (error) {
+
                 console.error(
                     "Could not read error response:",
                     error
                 );
             }
 
-
             console.error(
                 "AI analysis error:",
                 errorData
             );
-
 
             throw new Error(
                 "AI analysis failed"
@@ -820,8 +897,11 @@ async function analyzeTaskWithAI() {
 
 
         if (
-            ["low", "medium", "high"]
-                .includes(aiPriority)
+            [
+                "low",
+                "medium",
+                "high"
+            ].includes(aiPriority)
         ) {
 
             priorityInput.value =
@@ -839,8 +919,10 @@ async function analyzeTaskWithAI() {
         // ==================================
 
         if (
-            result.project_id !== undefined &&
-            result.project_id !== null &&
+            result.project_id !==
+                undefined &&
+            result.project_id !==
+                null &&
             result.project_id !== ""
         ) {
 
@@ -849,20 +931,9 @@ async function analyzeTaskWithAI() {
 
         } else {
 
-            /*
-             * If AI does not return project_id,
-             * keep the existing value.
-             *
-             * If there is no value, use Project 1
-             * because your production test project
-             * currently uses ID 1.
-             */
-
-            if (!projectIdInput.value) {
-
-                projectIdInput.value =
-                    "1";
-            }
+            // PROJECT ID OPTIONAL
+            projectIdInput.value =
+                "";
         }
 
 
@@ -885,10 +956,6 @@ async function analyzeTaskWithAI() {
                 ).trim();
 
 
-            // --------------------------------
-            // Already YYYY-MM-DD
-            // --------------------------------
-
             if (
                 /^\d{4}-\d{2}-\d{2}$/
                     .test(aiDueDate)
@@ -899,12 +966,10 @@ async function analyzeTaskWithAI() {
 
             } else {
 
-                // ----------------------------
-                // Try parsing another date format
-                // ----------------------------
-
                 const parsedDate =
-                    new Date(aiDueDate);
+                    new Date(
+                        aiDueDate
+                    );
 
 
                 if (
@@ -916,26 +981,21 @@ async function analyzeTaskWithAI() {
                     const year =
                         parsedDate.getFullYear();
 
-
                     const month =
                         String(
                             parsedDate.getMonth() + 1
-                        )
-                            .padStart(
-                                2,
-                                "0"
-                            );
-
+                        ).padStart(
+                            2,
+                            "0"
+                        );
 
                     const day =
                         String(
                             parsedDate.getDate()
-                        )
-                            .padStart(
-                                2,
-                                "0"
-                            );
-
+                        ).padStart(
+                            2,
+                            "0"
+                        );
 
                     dueDateInput.value =
                         `${year}-${month}-${day}`;
@@ -962,10 +1022,6 @@ async function analyzeTaskWithAI() {
             "✅ AI analyzed the task. Review the details below and click Add Task.";
 
 
-        // ==================================
-        // DEBUG
-        // ==================================
-
         console.log(
             "AI filled form:",
             {
@@ -987,10 +1043,6 @@ async function analyzeTaskWithAI() {
         );
 
 
-        // ==================================
-        // SCROLL TO TASK FORM
-        // ==================================
-
         titleInput.scrollIntoView({
             behavior: "smooth",
             block: "center"
@@ -1004,10 +1056,8 @@ async function analyzeTaskWithAI() {
             error
         );
 
-
         aiStatus.textContent =
             "❌ Unable to analyze task. Please try again.";
-
 
     } finally {
 
@@ -1055,29 +1105,43 @@ taskForm.addEventListener(
         }
 
 
-        titleError.textContent = "";
+        titleError.textContent =
+            "";
 
 
         // ==================================
-        // PROJECT ID VALIDATION
+        // OPTIONAL PROJECT ID
         // ==================================
 
-        const projectId =
-            Number(
-                projectIdInput.value
-            );
+        const projectIdValue =
+            projectIdInput.value.trim();
 
 
-        if (
-            !projectId ||
-            projectId < 1
-        ) {
+        let projectId =
+            null;
 
-            alert(
-                "Please enter a valid Project ID."
-            );
 
-            return;
+        if (projectIdValue !== "") {
+
+            projectId =
+                Number(
+                    projectIdValue
+                );
+
+
+            if (
+                !Number.isInteger(
+                    projectId
+                ) ||
+                projectId < 1
+            ) {
+
+                alert(
+                    "Please enter a valid Project ID or leave it empty."
+                );
+
+                return;
+            }
         }
 
 
@@ -1120,11 +1184,9 @@ taskForm.addEventListener(
                 await fetch(
                     `${API_URL}/tasks/`,
                     {
-
                         method: "POST",
 
                         headers: {
-
                             "Content-Type":
                                 "application/json"
                         },
@@ -1142,9 +1204,12 @@ taskForm.addEventListener(
                 let errorData = {};
 
                 try {
+
                     errorData =
                         await response.json();
+
                 } catch (error) {
+
                     console.error(
                         "Could not read error response:",
                         error
@@ -1159,6 +1224,7 @@ taskForm.addEventListener(
 
 
                 alert(
+                    errorData.detail ||
                     "Task could not be created."
                 );
 
@@ -1229,7 +1295,6 @@ taskForm.addEventListener(
                 "Backend connection failed."
             );
         }
-
     }
 );
 
@@ -1247,7 +1312,9 @@ async function editTask(task) {
         );
 
 
-    if (newTitle === null) {
+    if (
+        newTitle === null
+    ) {
         return;
     }
 
@@ -1273,6 +1340,10 @@ async function editTask(task) {
         );
 
 
+    // ==================================
+    // OPTIONAL PROJECT ID
+    // ==================================
+
     const updatedTask = {
 
         title:
@@ -1287,7 +1358,8 @@ async function editTask(task) {
             task.completed,
 
         project_id:
-            task.project_id,
+            task.project_id ??
+            null,
 
         priority:
             task.priority,
@@ -1386,13 +1458,14 @@ async function toggleTaskCompletion(
             task.title,
 
         description:
-            task.description,
+            task.description || "",
 
         completed:
             !task.completed,
 
         project_id:
-            task.project_id,
+            task.project_id ??
+            null,
 
         priority:
             task.priority,
@@ -1481,7 +1554,9 @@ async function toggleTaskCompletion(
 // DELETE TASK
 // ==========================================
 
-async function deleteTask(taskId) {
+async function deleteTask(
+    taskId
+) {
 
     const confirmed =
         confirm(
@@ -1593,7 +1668,9 @@ sortTasksSelect.addEventListener(
             sortTasksSelect.value;
 
 
-        if (sortValue === "priority") {
+        if (
+            sortValue === "priority"
+        ) {
 
             loadSortedTasks(
                 "priority"
@@ -1603,7 +1680,9 @@ sortTasksSelect.addEventListener(
         }
 
 
-        if (sortValue === "dueDate") {
+        if (
+            sortValue === "dueDate"
+        ) {
 
             loadSortedTasks(
                 "dueDate"

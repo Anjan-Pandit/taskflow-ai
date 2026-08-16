@@ -28,17 +28,41 @@ class Task(Base):
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    description = Column(String)
-    completed = Column(Boolean, default=False)
 
-    project_id = Column(
-        Integer,
-        ForeignKey("projects.id"),
+    title = Column(
+        String,
         nullable=False
     )
 
-    priority = Column(String, nullable=False, default="medium")
-    due_date = Column(String, nullable=True)
+    description = Column(
+        String,
+        nullable=True
+    )
 
-    project = relationship("Project", back_populates="tasks")
+    completed = Column(
+        Boolean,
+        default=False
+    )
+
+    # PROJECT ID IS OPTIONAL
+    project_id = Column(
+        Integer,
+        ForeignKey("projects.id"),
+        nullable=True
+    )
+
+    priority = Column(
+        String,
+        nullable=False,
+        default="medium"
+    )
+
+    due_date = Column(
+        String,
+        nullable=True
+    )
+
+    project = relationship(
+        "Project",
+        back_populates="tasks"
+    )
