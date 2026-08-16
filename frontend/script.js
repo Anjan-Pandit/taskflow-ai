@@ -279,7 +279,9 @@ function renderTasks(tasks) {
         message.textContent =
             "No tasks found.";
 
-        taskList.appendChild(message);
+        taskList.appendChild(
+            message
+        );
 
         return;
     }
@@ -751,8 +753,18 @@ async function analyzeTaskWithAI() {
 
         if (!response.ok) {
 
-            const errorData =
-                await response.json();
+            let errorData = {};
+
+            try {
+                errorData =
+                    await response.json();
+            } catch (error) {
+                console.error(
+                    "Could not read error response:",
+                    error
+                );
+            }
+
 
             console.error(
                 "AI analysis error:",
@@ -777,7 +789,7 @@ async function analyzeTaskWithAI() {
 
 
         // ==================================
-        // FILL NORMAL TASK FORM
+        // FILL TITLE
         // ==================================
 
         titleInput.value =
@@ -785,20 +797,155 @@ async function analyzeTaskWithAI() {
             userInput;
 
 
+        // ==================================
+        // FILL DESCRIPTION
+        // ==================================
+
         descriptionInput.value =
             result.description ||
             "";
 
 
-        priorityInput.value =
-            result.priority ||
-            "medium";
+        // ==================================
+        // FILL PRIORITY
+        // ==================================
+
+        const aiPriority =
+            String(
+                result.priority ||
+                "medium"
+            )
+                .toLowerCase()
+                .trim();
 
 
-        if (result.due_date) {
+        if (
+            ["low", "medium", "high"]
+                .includes(aiPriority)
+        ) {
 
-            dueDateInput.value =
-                result.due_date;
+            priorityInput.value =
+                aiPriority;
+
+        } else {
+
+            priorityInput.value =
+                "medium";
+        }
+
+
+        // ==================================
+        // FILL PROJECT ID
+        // ==================================
+
+        if (
+            result.project_id !== undefined &&
+            result.project_id !== null &&
+            result.project_id !== ""
+        ) {
+
+            projectIdInput.value =
+                result.project_id;
+
+        } else {
+
+            /*
+             * If AI does not return project_id,
+             * keep the existing value.
+             *
+             * If there is no value, use Project 1
+             * because your production test project
+             * currently uses ID 1.
+             */
+
+            if (!projectIdInput.value) {
+
+                projectIdInput.value =
+                    "1";
+            }
+        }
+
+
+        // ==================================
+        // FILL DUE DATE
+        // ==================================
+
+        let aiDueDate =
+            result.due_date ||
+            result.dueDate ||
+            result.date ||
+            "";
+
+
+        if (aiDueDate) {
+
+            aiDueDate =
+                String(
+                    aiDueDate
+                ).trim();
+
+
+            // --------------------------------
+            // Already YYYY-MM-DD
+            // --------------------------------
+
+            if (
+                /^\d{4}-\d{2}-\d{2}$/
+                    .test(aiDueDate)
+            ) {
+
+                dueDateInput.value =
+                    aiDueDate;
+
+            } else {
+
+                // ----------------------------
+                // Try parsing another date format
+                // ----------------------------
+
+                const parsedDate =
+                    new Date(aiDueDate);
+
+
+                if (
+                    !isNaN(
+                        parsedDate.getTime()
+                    )
+                ) {
+
+                    const year =
+                        parsedDate.getFullYear();
+
+
+                    const month =
+                        String(
+                            parsedDate.getMonth() + 1
+                        )
+                            .padStart(
+                                2,
+                                "0"
+                            );
+
+
+                    const day =
+                        String(
+                            parsedDate.getDate()
+                        )
+                            .padStart(
+                                2,
+                                "0"
+                            );
+
+
+                    dueDateInput.value =
+                        `${year}-${month}-${day}`;
+
+                } else {
+
+                    dueDateInput.value =
+                        "";
+                }
+            }
 
         } else {
 
@@ -808,21 +955,36 @@ async function analyzeTaskWithAI() {
 
 
         // ==================================
-        // PROJECT ID
-        // ==================================
-
-        // AI response currently does not
-        // provide project_id.
-        //
-        // User can enter Project ID manually.
-
-
-        // ==================================
-        // STATUS
+        // AI STATUS
         // ==================================
 
         aiStatus.textContent =
             "✅ AI analyzed the task. Review the details below and click Add Task.";
+
+
+        // ==================================
+        // DEBUG
+        // ==================================
+
+        console.log(
+            "AI filled form:",
+            {
+                title:
+                    titleInput.value,
+
+                description:
+                    descriptionInput.value,
+
+                project_id:
+                    projectIdInput.value,
+
+                priority:
+                    priorityInput.value,
+
+                due_date:
+                    dueDateInput.value
+            }
+        );
 
 
         // ==================================
@@ -845,6 +1007,7 @@ async function analyzeTaskWithAI() {
 
         aiStatus.textContent =
             "❌ Unable to analyze task. Please try again.";
+
 
     } finally {
 
@@ -905,7 +1068,10 @@ taskForm.addEventListener(
             );
 
 
-        if (!projectId || projectId < 1) {
+        if (
+            !projectId ||
+            projectId < 1
+        ) {
 
             alert(
                 "Please enter a valid Project ID."
@@ -921,7 +1087,8 @@ taskForm.addEventListener(
 
         const taskData = {
 
-            title: title,
+            title:
+                title,
 
             description:
                 descriptionInput.value.trim(),
@@ -936,8 +1103,15 @@ taskForm.addEventListener(
                 dueDateInput.value ||
                 null,
 
-            completed: false
+            completed:
+                false
         };
+
+
+        console.log(
+            "Creating task:",
+            taskData
+        );
 
 
         try {
@@ -965,8 +1139,17 @@ taskForm.addEventListener(
 
             if (!response.ok) {
 
-                const errorData =
-                    await response.json();
+                let errorData = {};
+
+                try {
+                    errorData =
+                        await response.json();
+                } catch (error) {
+                    console.error(
+                        "Could not read error response:",
+                        error
+                    );
+                }
 
 
                 console.error(
@@ -985,6 +1168,12 @@ taskForm.addEventListener(
 
             const newTask =
                 await response.json();
+
+
+            console.log(
+                "Task created:",
+                newTask
+            );
 
 
             const currentTasks =
@@ -1017,7 +1206,10 @@ taskForm.addEventListener(
                 "medium";
 
 
-            // Reset AI section too
+            // ==================================
+            // RESET AI SECTION
+            // ==================================
+
             aiTaskInput.value =
                 "";
 
@@ -1083,7 +1275,8 @@ async function editTask(task) {
 
     const updatedTask = {
 
-        title: title,
+        title:
+            title,
 
         description:
             newDescription === null

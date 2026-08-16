@@ -6,12 +6,12 @@ def analyze_task(title: str, description: str = ""):
     """
     Analyze a natural-language task and return structured task data.
 
-    This is a lightweight rule-based AI-style parser.
-    It detects:
+    Detects:
     - Clean task title
     - Description
     - Priority
     - Category
+    - Project ID
     - Due date
     """
 
@@ -60,26 +60,31 @@ def analyze_task(title: str, description: str = ""):
     today = date.today()
 
     if "day after tomorrow" in lower_text:
+
         due_date = (
             today + timedelta(days=2)
         ).isoformat()
 
     elif "tomorrow" in lower_text:
+
         due_date = (
             today + timedelta(days=1)
         ).isoformat()
 
     elif "today" in lower_text:
+
         due_date = today.isoformat()
 
     # Example:
-    # "Complete project in 3 days"
+    # Complete project in 3 days
+
     match = re.search(
         r"\bin\s+(\d+)\s+days?\b",
         lower_text
     )
 
     if match:
+
         days = int(match.group(1))
 
         due_date = (
@@ -107,6 +112,7 @@ def analyze_task(title: str, description: str = ""):
             "github",
         ]
     ):
+
         category = "Development"
 
     elif any(
@@ -123,6 +129,7 @@ def analyze_task(title: str, description: str = ""):
             "school",
         ]
     ):
+
         category = "Education"
 
     elif any(
@@ -136,10 +143,21 @@ def analyze_task(title: str, description: str = ""):
             "work",
         ]
     ):
+
         category = "Work"
 
     else:
+
         category = "General"
+
+    # ==========================================
+    # PROJECT ID
+    # ==========================================
+
+    # Default production project
+    # Currently using Project ID 1.
+
+    project_id = 1
 
     # ==========================================
     # CLEAN TITLE
@@ -148,6 +166,7 @@ def analyze_task(title: str, description: str = ""):
     clean_title = original_title
 
     # Remove priority phrases
+
     priority_patterns = [
         r"\bvery\s+high\s+priority\b",
         r"\bhigh\s+priority\b",
@@ -158,6 +177,7 @@ def analyze_task(title: str, description: str = ""):
     ]
 
     for pattern in priority_patterns:
+
         clean_title = re.sub(
             pattern,
             "",
@@ -166,6 +186,7 @@ def analyze_task(title: str, description: str = ""):
         )
 
     # Remove urgency words
+
     clean_title = re.sub(
         r"\b(urgent|critical|asap)\b",
         "",
@@ -174,6 +195,7 @@ def analyze_task(title: str, description: str = ""):
     )
 
     # Remove date phrases
+
     clean_title = re.sub(
         r"\bday\s+after\s+tomorrow\b",
         "",
@@ -212,9 +234,6 @@ def analyze_task(title: str, description: str = ""):
         clean_title,
     ).strip()
 
-    # Remove dangling words caused by
-    # phrases such as:
-    # "assignment tomorrow with high priority"
     clean_title = re.sub(
         r"\bwith\s*$",
         "",
@@ -229,15 +248,18 @@ def analyze_task(title: str, description: str = ""):
         flags=re.IGNORECASE,
     ).strip()
 
-    # Remove punctuation left at the end
     clean_title = re.sub(
         r"[,\-:;]+$",
         "",
         clean_title,
     ).strip()
 
-    # Fallback
+    # ==========================================
+    # FALLBACK TITLE
+    # ==========================================
+
     if not clean_title:
+
         clean_title = original_title
 
     # ==========================================
@@ -245,20 +267,28 @@ def analyze_task(title: str, description: str = ""):
     # ==========================================
 
     if original_description:
-        generated_description = original_description
+
+        generated_description = (
+            original_description
+        )
 
     else:
+
         generated_description = ""
 
-        lower_clean_title = clean_title.lower()
+        lower_clean_title = (
+            clean_title.lower()
+        )
 
         if "assignment" in lower_clean_title:
+
             generated_description = (
                 f"Complete the {clean_title} "
                 "and submit it by the deadline."
             )
 
         elif "exam" in lower_clean_title:
+
             generated_description = (
                 f"Prepare for the {clean_title} "
                 "and complete the required revision."
@@ -274,26 +304,30 @@ def analyze_task(title: str, description: str = ""):
                 "code",
             ]
         ):
+
             generated_description = (
-                f"Complete the programming task: "
+                "Complete the programming task: "
                 f"{clean_title}."
             )
 
         elif "project" in lower_clean_title:
+
             generated_description = (
-                f"Work on the project: "
+                "Work on the project: "
                 f"{clean_title}."
             )
 
         elif "meeting" in lower_clean_title:
+
             generated_description = (
-                f"Attend and complete the meeting: "
+                "Attend and complete the meeting: "
                 f"{clean_title}."
             )
 
         else:
+
             generated_description = (
-                f"Complete the task: "
+                "Complete the task: "
                 f"{clean_title}."
             )
 
@@ -306,5 +340,6 @@ def analyze_task(title: str, description: str = ""):
         "description": generated_description,
         "priority": priority,
         "category": category,
+        "project_id": project_id,
         "due_date": due_date,
     }
