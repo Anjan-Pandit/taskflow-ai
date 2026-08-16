@@ -1,97 +1,83 @@
-from fastapi import FastAPI, Request
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import time
 
-from .config import settings
 from .database import Base, engine
-from . import models
-
-from .routes.tasks import router as task_router
-from .routes.users import router as user_router
-from .routes.projects import router as project_router
+from .routes.tasks import router as tasks_router
+from .routes.users import router as users_router
+from .routes.projects import router as projects_router
 from .routes.ai import router as ai_router
 
 
-# Create database tables
+# ==========================================
+# CREATE DATABASE TABLES
+# ==========================================
+
 Base.metadata.create_all(bind=engine)
 
 
-# Create FastAPI application
+# ==========================================
+# FASTAPI APP
+# ==========================================
+
 app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.APP_VERSION
+    title="TaskFlow AI",
+    version="1.0.0",
+    description="AI-Assisted Task Management Dashboard"
 )
 
 
 # ==========================================
-# CORS
+# CORS CONFIGURATION
 # ==========================================
 
 app.add_middleware(
     CORSMiddleware,
+
     allow_origins=[
+        "https://taskflow-ai-frontend-tmd4.onrender.com",
         "http://localhost:5500",
         "http://127.0.0.1:5500",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "https://taskflow-ai-frontend-tmd4.onrender.com"
     ],
+
     allow_credentials=True,
+
     allow_methods=["*"],
-    allow_headers=["*"]
+
+    allow_headers=["*"],
 )
 
 
 # ==========================================
-# REQUEST LOGGER
+# ROUTES
 # ==========================================
 
-@app.middleware("http")
-async def log_request(request: Request, call_next):
-    start_time = time.perf_counter()
+app.include_router(
+    tasks_router
+)
 
-    response = await call_next(request)
+app.include_router(
+    users_router
+)
 
-    process_time = (time.perf_counter() - start_time) * 1000
+app.include_router(
+    projects_router
+)
 
-    print(
-        f"{request.method} {request.url.path} "
-        f"- {process_time:.2f} ms"
-    )
-
-    return response
+app.include_router(
+    ai_router
+)
 
 
 # ==========================================
-# HOME
+# ROOT ROUTE
 # ==========================================
 
 @app.get("/")
-def home():
+def root():
     return {
-        "message": "Welcome to TaskFlow AI",
-        "version": settings.APP_VERSION,
-        "status": "running"
+        "message": "TaskFlow AI Backend is running",
+        "status": "success"
     }
-
-
-# ==========================================
-# HEALTH CHECK
-# ==========================================
-
-@app.get("/health")
-def health():
-    return {
-        "status": "healthy",
-        "service": "TaskFlow AI Backend"
-    }
-
-
-# ==========================================
-# ROUTERS
-# ==========================================
-
-app.include_router(task_router)
-app.include_router(user_router)
-app.include_router(project_router)
-app.include_router(ai_router)
